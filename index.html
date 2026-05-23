@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Cyber Threat Intelligence Dashboard</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial;
+      background: #070b14;
+      color: white;
+      display: flex;
+    }
+
+    /* LEFT PANEL */
+    .left {
+      width: 35%;
+      height: 100vh;
+      background: #0f172a;
+      padding: 25px;
+      box-sizing: border-box;
+      border-right: 1px solid #1f2937;
+    }
+
+    /* RIGHT PANEL */
+    .right {
+      width: 65%;
+      padding: 25px;
+      box-sizing: border-box;
+    }
+
+    h2 {
+      margin-top: 0;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+      margin-top: 10px;
+      background: #1e293b;
+      color: white;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 15px;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      background: #2563eb;
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .panel {
+      background: #111827;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 10px;
+      border-left: 4px solid #334155;
+    }
+
+    .safe { border-left-color: #22c55e; }
+    .warn { border-left-color: #f59e0b; }
+    .danger { border-left-color: #ef4444; }
+
+    .title {
+      font-size: 14px;
+      color: #94a3b8;
+    }
+
+    .value {
+      margin-top: 5px;
+      font-size: 14px;
+    }
+
+    .score {
+      font-size: 28px;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- LEFT SIDE -->
+<div class="left">
+  <h2>🛡️ URL Threat Scanner</h2>
+  <p class="title">Enter URL for deep analysis</p>
+
+  <input type="text" id="url" placeholder="https://example.com">
+
+  <button onclick="scan()">Run Analysis</button>
+
+  <div class="score" id="score">0/100</div>
+</div>
+
+<!-- RIGHT SIDE -->
+<div class="right">
+  <h3>📊 Security Report</h3>
+
+  <div id="report"></div>
+</div>
+
+<script>
+  function scan() {
+    let url = document.getElementById("url").value.toLowerCase();
+    let report = document.getElementById("report");
+    let scoreBox = document.getElementById("score");
+
+    let score = 100;
+    let logs = [];
+
+    // SECURITY RULES
+    if (!url.startsWith("https")) {
+      score -= 25;
+      logs.push(["⚠ Protocol Risk", "No HTTPS encryption detected"]);
+    }
+
+    if (url.includes("@")) {
+      score -= 20;
+      logs.push(["⚠ Obfuscation", "URL contains '@' symbol"]);
+    }
+
+    if (url.length > 80) {
+      score -= 10;
+      logs.push(["⚠ Structure Risk", "Unusually long URL"]);
+    }
+
+    if (url.includes("login") || url.includes("verify")) {
+      score -= 20;
+      logs.push(["⚠ Phishing Pattern", "Suspicious keyword detected"]);
+    }
+
+    if (url.includes("bit.ly") || url.includes("tinyurl")) {
+      score -= 20;
+      logs.push(["⚠ Hidden Redirect", "URL shortener detected"]);
+    }
+
+    if (logs.length === 0) {
+      logs.push(["✔ Clean Result", "No threats detected"]);
+    }
+
+    // SCORE DISPLAY
+    scoreBox.innerText = score + "/100";
+
+    // CLEAR REPORT
+    report.innerHTML = "";
+
+    // BUILD DASHBOARD
+    logs.forEach(l => {
+      let div = document.createElement("div");
+      div.className = "panel";
+
+      if (score > 70) div.classList.add("safe");
+      else if (score > 40) div.classList.add("warn");
+      else div.classList.add("danger");
+
+      div.innerHTML = `
+        <div class="title">${l[0]}</div>
+        <div class="value">${l[1]}</div>
+      `;
+
+      report.appendChild(div);
+    });
+  }
+</script>
+
+</body>
+</html>
